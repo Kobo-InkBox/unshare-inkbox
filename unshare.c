@@ -34,12 +34,11 @@ int arguments_count_getopt;
 char ** arguments_list;
 
 void print_help() {
-	printf("%s: Run specified process in specified namespaces.\nUsage: %s [arguments] -- [[<absolute path to executable>] [<executable arguments>]]\nArguments:\n\t-m: mounts namespace\n\t-u: UTS namespace\n\t-i: IPC namespace\n\t-n: network namespace\n\t-p: PID namespace\n\t-U: user namespace\n\t--help: Displays this help\n", arguments_list[0], arguments_list[0]);
+	printf("%s: Run specified process in specified namespace(s).\nUsage: %s [arguments] -- [[<absolute path to executable>] [<executable arguments>]]\nArguments:\n\t-m: mounts namespace\n\t-u: UTS namespace\n\t-i: IPC namespace\n\t-n: network namespace\n\t-p: PID namespace\n\t-U: user namespace\n\t--help: Displays this help\n", arguments_list[0], arguments_list[0]);
 }
 
 // https://stackoverflow.com/a/4553076
-int is_regular_file(const char *path)
-{
+int is_regular_file(const char *path) {
     struct stat path_stat;
     stat(path, &path_stat);
     return S_ISREG(path_stat.st_mode);
