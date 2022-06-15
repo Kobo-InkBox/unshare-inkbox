@@ -2,16 +2,17 @@
 Since the default `unshare` implementations of BusyBox or util-linux didn't work for some namespaces (the PID one, namely) on Kobo & Kindle, I discovered that using `clone()` instead of `unshare()` worked just fine on these devices. Thus, I went ahead and wrote my own implementation of it.
 ## Usage
 ```
-./unshare: Run specified process in specified namespaces.
+./unshare: Run specified process in specified namespace(s).
 Usage: ./unshare [arguments] -- [[<absolute path to executable>] [<executable arguments>]]
 Arguments:
-	-m: mounts namespace
-	-u: UTS namespace
-	-i: IPC namespace
-	-n: network namespace
-	-p: PID namespace
-	-U: user namespace
-	--help: Displays this help
+	-m:		   mounts namespace
+	-u:		   UTS namespace
+	-i:		   IPC namespace
+	-n:		   network namespace
+	-p:		   PID namespace
+	-U:		   user namespace
+	-P [<mountpoint>]: mount proc filesystem at mountpoint before executing process (chroot only)
+	--help:		   Displays this help
 ```
 ## Proof-of-Concept/Examples
 ```
