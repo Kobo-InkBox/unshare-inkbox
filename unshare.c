@@ -49,7 +49,7 @@ int is_regular_file(const char *path) {
 
 int child_fn() {
 	if(mount_proc == 1) {
-		if(0 != mount("proc", proc_mountpoint, "proc", 0, "")) {
+		if(0 != mount("proc", proc_mountpoint, "proc", MS_NOSUID, "")) {
 			fprintf(stderr, "ERROR: Failed to mount proc filesystem at '%s' because of the following error: %s.\n", proc_mountpoint, strerror(errno));
 		}
 	}
