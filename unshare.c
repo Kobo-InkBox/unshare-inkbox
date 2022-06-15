@@ -23,6 +23,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mount.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -31,10 +32,12 @@ static char child_stack[1048576];
 
 int arguments_count;
 int arguments_count_getopt;
+int mount_proc = 0;
 char ** arguments_list;
+char * proc_mountpoint;
 
 void print_help() {
-	printf("%s: Run specified process in specified namespace(s).\nUsage: %s [arguments] -- [[<absolute path to executable>] [<executable arguments>]]\nArguments:\n\t-m: mounts namespace\n\t-u: UTS namespace\n\t-i: IPC namespace\n\t-n: network namespace\n\t-p: PID namespace\n\t-U: user namespace\n\t--help: Displays this help\n", arguments_list[0], arguments_list[0]);
+	printf("%s: Run specified process in specified namespace(s).\nUsage: %s [arguments] -- [[<absolute path to executable>] [<executable arguments>]]\nArguments:\n\t-m:\t\t   mounts namespace\n\t-u:\t\t   UTS namespace\n\t-i:\t\t   IPC namespace\n\t-n:\t\t   network namespace\n\t-p:\t\t   PID namespace\n\t-U:\t\t   user namespace\n\t-P [<mountpoint>]: mount proc filesystem at mountpoint before executing process (chroot only)\n\t--help:\t\t   Displays this help\n", arguments_list[0], arguments_list[0]);
 }
 
 // https://stackoverflow.com/a/4553076
@@ -45,6 +48,11 @@ int is_regular_file(const char *path) {
 }
 
 int child_fn() {
+	if(mount_proc == 1) {
+		if(0 != mount("proc", proc_mountpoint, "proc", 0, "")) {
+			fprintf(stderr, "ERROR: Failed to mount proc filesystem at '%s' because of the following error: %s.\n", proc_mountpoint, strerror(errno));
+		}
+	}
 	char ** arguments_list_clone = arguments_list + arguments_count_getopt;
 	execv(arguments_list_clone[0], arguments_list_clone);
 }
@@ -63,14 +71,15 @@ int main(int argc, char * argv[]) {
 	} else {
 		int flags, opt;
 		flags = 0;
-		while ((opt = getopt(argc, argv, "imnpuU")) != -1) {
+		while((opt = getopt(argc, argv, "imnpuUP:")) != -1) {
 			switch (opt) {
-				case 'i': flags |= CLONE_NEWIPC;        break;
-				case 'm': flags |= CLONE_NEWNS;         break;
-				case 'n': flags |= CLONE_NEWNET;        break;
-				case 'p': flags |= CLONE_NEWPID;        break;
-				case 'u': flags |= CLONE_NEWUTS;        break;
-				case 'U': flags |= CLONE_NEWUSER;       break;
+				case 'i': flags |= CLONE_NEWIPC;				break;
+				case 'm': flags |= CLONE_NEWNS;					break;
+				case 'n': flags |= CLONE_NEWNET;				break;
+				case 'p': flags |= CLONE_NEWPID;				break;
+				case 'u': flags |= CLONE_NEWUTS;				break;
+				case 'U': flags |= CLONE_NEWUSER;				break;
+				case 'P': proc_mountpoint = optarg; mount_proc = 1;		break;
 				default:  break;
 			}
 		}
@@ -89,6 +98,11 @@ int main(int argc, char * argv[]) {
 				return 1;
 			} else {
 				waitpid(child_pid, NULL, 0);
+				if(mount_proc == 1) {
+					if(0 != umount(proc_mountpoint)) {
+						fprintf(stderr, "ERROR: Failed to unmount proc filesystem at '%s' because of the following error: %s.\n", proc_mountpoint, strerror(errno));
+					}
+				}
 			}
 		}
 		return 0;
