@@ -37,7 +37,7 @@ char ** arguments_list;
 char * proc_mountpoint;
 
 void print_help() {
-	printf("%s: Run specified process in specified namespace(s).\nUsage: %s [arguments] -- [[<absolute path to executable>] [<executable arguments>]]\nArguments:\n\t-m:\t\t   mounts namespace\n\t-u:\t\t   UTS namespace\n\t-i:\t\t   IPC namespace\n\t-n:\t\t   network namespace\n\t-p:\t\t   PID namespace\n\t-U:\t\t   user namespace\n\t-P [<mountpoint>]: mount proc filesystem at mountpoint before executing process (chroot only)\n\t--help:\t\t   Displays this help\n", arguments_list[0], arguments_list[0]);
+	printf("%s: Run specified process in specified namespace(s).\nUsage: %s [arguments] -- [[<absolute path to executable>] [<executable arguments>]]\nArguments:\n\t-m:\t\t   Mounts namespace\n\t-u:\t\t   UTS namespace\n\t-i:\t\t   IPC namespace\n\t-n:\t\t   Network namespace\n\t-p:\t\t   PID namespace\n\t-U:\t\t   User namespace\n\t-P [<mountpoint>]: Mount proc filesystem at mountpoint before executing process (chroot only)\n\t--help:\t\t   Displays this help\n", arguments_list[0], arguments_list[0]);
 }
 
 // https://stackoverflow.com/a/4553076
